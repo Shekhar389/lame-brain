@@ -15,13 +15,13 @@ describe('GeminiChatService', () => {
 
     const service = new GeminiChatService({
       client: mockClient,
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
     });
 
     const result = await service.generateResponse('Hello, world!');
 
     expect(mockGenerateContent).toHaveBeenCalledWith({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [
         {
           role: 'user',
@@ -36,7 +36,7 @@ describe('GeminiChatService', () => {
     });
   });
 
-  it('maps multi-turn conversation history preserving roles, order, and prompt', async () => {
+  it('maps multi-turn conversation history ensuring role alternation', async () => {
     const mockGenerateContent = vi.fn().mockResolvedValue({
       text: 'Paris is the capital of France.',
     });
@@ -52,12 +52,14 @@ describe('GeminiChatService', () => {
     const history = [
       { role: 'user' as const, content: 'What countries are in Europe?' },
       { role: 'model' as const, content: 'France, Germany, Italy, etc.' },
+      { role: 'user' as const, content: 'Tell me more.' },
     ];
 
+    // Current prompt is also user, which coalesces with previous user turn to maintain alternation
     const result = await service.generateResponse('What is the capital of France?', history);
 
     expect(mockGenerateContent).toHaveBeenCalledWith({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [
         {
           role: 'user',
@@ -69,7 +71,7 @@ describe('GeminiChatService', () => {
         },
         {
           role: 'user',
-          parts: [{ text: 'What is the capital of France?' }],
+          parts: [{ text: 'Tell me more.\n\nWhat is the capital of France?' }],
         },
       ],
     });
@@ -80,11 +82,12 @@ describe('GeminiChatService', () => {
     });
   });
 
-  it('throws an error if GEMINI_API_KEY is missing and no client is provided', async () => {
-    const service = new GeminiChatService({ apiKey: '' });
-    await expect(service.generateResponse('Hello')).rejects.toThrow(
-      'GEMINI_API_KEY is required to generate responses with Gemini'
-    );
+  it('falls back to simulated local response when no API key or client is provided', async () => {
+    const service = new GeminiChatService({ apiKey: undefined });
+    const result = await service.generateResponse('Hello without credentials');
+
+    expect(result.role).toBe('model');
+    expect(result.content).toContain('Simulated local response');
   });
 
   it('propagates error when Gemini generateContent fails', async () => {
@@ -99,19 +102,17 @@ describe('GeminiChatService', () => {
     await expect(service.generateResponse('Hello')).rejects.toThrow('Gemini API quota exceeded');
   });
 
-  it('falls back to empty string if response.text is undefined', async () => {
+  it('throws error when response.text is empty or filtered', async () => {
     const mockClient = {
       models: {
-        generateContent: vi.fn().mockResolvedValue({ text: undefined }),
+        generateContent: vi.fn().mockResolvedValue({ text: '   ' }),
       },
     } as any;
 
     const service = new GeminiChatService({ client: mockClient });
-    const result = await service.generateResponse('Hello');
 
-    expect(result).toEqual({
-      role: 'model',
-      content: '',
-    });
+    await expect(service.generateResponse('Hello')).rejects.toThrow(
+      'Gemini returned an empty response or content was filtered.'
+    );
   });
 });
