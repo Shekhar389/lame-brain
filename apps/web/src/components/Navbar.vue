@@ -5,7 +5,7 @@
         <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm">
           AI
         </span>
-        <h1 class="text-lg font-semibold text-gray-900">Anonymous Chat</h1>
+        <h1 class="text-lg font-semibold text-gray-900">lame-brain</h1>
       </div>
 
       <nav class="flex items-center space-x-2">

@@ -12,7 +12,7 @@ describe('Vue App Component', () => {
       },
     });
 
-    expect(wrapper.text()).toContain('Anonymous Chat');
+    expect(wrapper.text()).toContain('lame-brain');
     expect(wrapper.text()).toContain('New Chat');
   });
 });

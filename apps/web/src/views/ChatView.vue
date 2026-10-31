@@ -6,7 +6,6 @@
         <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
         <span class="text-xs font-medium text-gray-600">Ephemeral Session</span>
       </div>
-      <NewChatButton />
     </div>
 
     <!-- Message Container / Feed -->
@@ -126,7 +125,6 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue';
 import { useChatStore } from '../stores/chat.store.js';
-import NewChatButton from '../components/NewChatButton.vue';
 
 const chatStore = useChatStore();
 const inputPrompt = ref('');

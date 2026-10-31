@@ -1,4 +1,4 @@
-# Anonymous Ephemeral Chat LLM Clone (Vue 3 + Express + TypeScript)
+# lame-brain: Anonymous Ephemeral Chat LLM Clone (Vue 3 + Express + TypeScript)
 
 An anonymous, temporary ChatGPT-like conversational web application built as a modular monolith pairing a Vue 3 client with a stateless Express backend, utilizing TypeScript and npm workspaces.
 

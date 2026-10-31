@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import ChatView from '../src/views/ChatView.vue';
+import { useChatStore } from '../src/stores/chat.store.js';
 import { apiClient } from '../src/api/client.js';
 
 describe('ChatView Component', () => {
@@ -75,7 +76,7 @@ describe('ChatView Component', () => {
     expect(wrapper.text()).toContain('Assistant response text');
   });
 
-  it('resets the visible conversation to the empty state when clicking "New Chat"', async () => {
+  it('resets the visible conversation to the empty state when chat history is cleared', async () => {
     vi.spyOn(apiClient, 'post').mockResolvedValue({
       data: {
         success: true,
@@ -101,10 +102,10 @@ describe('ChatView Component', () => {
 
     expect(wrapper.text()).toContain('Assistant reply');
 
-    // Click "New Chat" button
-    const newChatButton = wrapper.findAll('button').find((btn) => btn.text().includes('New Chat'));
-    expect(newChatButton?.exists()).toBe(true);
-    await newChatButton!.trigger('click');
+    // Clear chat via store (as triggered by New Chat button in navbar)
+    const chatStore = useChatStore();
+    chatStore.clearChat();
+    await flushPromises();
 
     expect(wrapper.text()).toContain('How can I help you today?');
     expect(wrapper.text()).not.toContain('Assistant reply');
