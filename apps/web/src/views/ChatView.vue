@@ -160,10 +160,11 @@ async function scrollToBottom() {
 }
 
 watch(
-  () => chatStore.messages.length,
+  () => chatStore.messages,
   () => {
     scrollToBottom();
-  }
+  },
+  { deep: true }
 );
 
 function handleKeyDown(e: KeyboardEvent) {

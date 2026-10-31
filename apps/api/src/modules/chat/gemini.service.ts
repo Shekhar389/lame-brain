@@ -16,14 +16,14 @@ export class GeminiChatService implements LLMProvider {
   //   this.model = model;
   // }
 
-  async generateResponse(prompt: string, _history: ChatTurn[] = []): Promise<ChatTurn> {
+  async generateResponse(prompt: string, history: ChatTurn[] = []): Promise<ChatTurn> {
     // Structural seam for live @google/genai integration:
     // 1. Initialize SDK:
     //    const { GoogleGenAI } = await import('@google/genai');
     //    const ai = new GoogleGenAI({ apiKey: this.apiKey });
     // 2. Map history turns to contents:
     //    const contents = [
-    //      ..._history.map(turn => ({
+    //      ...history.map(turn => ({
     //        role: turn.role === 'model' ? 'model' : 'user',
     //        parts: [{ text: turn.content }]
     //      })),
@@ -33,9 +33,14 @@ export class GeminiChatService implements LLMProvider {
     //    const response = await ai.models.generateContent({ model: this.model, contents });
     //    return { role: 'model', content: response.text ?? '' };
 
+    const contextNote =
+      history.length > 0
+        ? ` (incorporating ${history.length} prior conversation turn${history.length === 1 ? '' : 's'})`
+        : '';
+
     return {
       role: 'model',
-      content: `I received your message: "${prompt}". This is a simulated response from the LLM Provider seam while prepared for Gemini API integration.`,
+      content: `I received your message: "${prompt}"${contextNote}. This is a simulated response from the LLM Provider seam while prepared for Gemini API integration.`,
     };
   }
 }

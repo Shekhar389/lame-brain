@@ -6,6 +6,7 @@ export class ChatService {
   constructor(private readonly provider: LLMProvider = new GeminiChatService()) {}
 
   async processMessage(prompt: string, history: ChatTurn[] = []): Promise<ChatTurn> {
-    return this.provider.generateResponse(prompt, history);
+    const sanitizedPrompt = prompt.trim();
+    return this.provider.generateResponse(sanitizedPrompt, history);
   }
 }
