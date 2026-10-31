@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import type { ChatTurn } from '@repo/shared';
 import type { LLMProvider } from './llm-provider.interface.js';
 import { config } from '../../core/config.js';
+import { ExternalServiceError } from '../../core/errors.js';
 
 export interface GeminiChatServiceOptions {
   apiKey?: string;
@@ -81,7 +82,7 @@ export class GeminiChatService implements LLMProvider {
 
     const replyText = response.text?.trim();
     if (!replyText) {
-      throw new Error('Gemini returned an empty response or content was filtered.');
+      throw new ExternalServiceError('Gemini', 'Returned an empty response or content was filtered.');
     }
 
     return {

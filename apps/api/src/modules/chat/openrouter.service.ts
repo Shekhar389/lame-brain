@@ -2,6 +2,7 @@ import { OpenRouter } from '@openrouter/sdk';
 import type { ChatTurn } from '@repo/shared';
 import type { LLMProvider } from './llm-provider.interface.js';
 import { config } from '../../core/config.js';
+import { ExternalServiceError } from '../../core/errors.js';
 
 export interface OpenRouterChatServiceOptions {
   apiKey?: string;
@@ -76,10 +77,25 @@ export class OpenRouterChatService implements LLMProvider {
 
     const choice = response.choices?.[0];
     const replyContent = choice?.message?.content;
-    const replyText = typeof replyContent === 'string' ? replyContent.trim() : '';
+    let replyText = '';
+
+    if (typeof replyContent === 'string') {
+      replyText = replyContent.trim();
+    } else if (Array.isArray(replyContent)) {
+      replyText = replyContent
+        .map((part) => {
+          if (typeof part === 'string') return part;
+          if (part && typeof part === 'object' && 'text' in part && typeof part.text === 'string') {
+            return part.text;
+          }
+          return '';
+        })
+        .join('')
+        .trim();
+    }
 
     if (!replyText) {
-      throw new Error('OpenRouter returned an empty response or content was filtered.');
+      throw new ExternalServiceError('OpenRouter', 'Returned an empty response or content was filtered.');
     }
 
     return {

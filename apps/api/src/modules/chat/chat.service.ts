@@ -5,15 +5,11 @@ import type { LLMProvider } from './llm-provider.interface.js';
 import { config } from '../../core/config.js';
 
 export function getDefaultLLMProvider(): LLMProvider {
-  if (config.LLM_PROVIDER === 'openrouter') {
-    return new OpenRouterChatService();
-  }
-
   if (config.LLM_PROVIDER === 'gemini') {
     return new GeminiChatService();
   }
 
-  if (config.OPENROUTER_API_KEY && !config.GEMINI_API_KEY) {
+  if (config.LLM_PROVIDER === 'openrouter' || config.OPENROUTER_API_KEY) {
     return new OpenRouterChatService();
   }
 

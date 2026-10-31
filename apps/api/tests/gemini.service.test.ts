@@ -121,7 +121,7 @@ describe('GeminiChatService', () => {
     });
 
     await expect(service.generateResponse('Hello')).rejects.toThrow(
-      'Gemini returned an empty response or content was filtered.'
+      'Gemini: Returned an empty response or content was filtered.'
     );
   });
 });

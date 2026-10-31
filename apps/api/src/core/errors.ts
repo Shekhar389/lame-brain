@@ -31,3 +31,12 @@ export class ValidationError extends AppError {
     super(message, details);
   }
 }
+
+export class ExternalServiceError extends AppError {
+  readonly code = 'EXTERNAL_SERVICE_ERROR';
+  readonly statusCode = 502;
+
+  constructor(service: string, message: string, details?: ApiErrorDetail[]) {
+    super(`${service}: ${message}`, details);
+  }
+}

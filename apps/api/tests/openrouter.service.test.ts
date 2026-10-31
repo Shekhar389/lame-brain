@@ -122,7 +122,37 @@ describe('OpenRouterChatService', () => {
     await expect(service.generateResponse('Hello')).rejects.toThrow('OpenRouter rate limit reached');
   });
 
-  it('throws error when response choices are empty or content is empty', async () => {
+  it('extracts content correctly when message content is an array of content parts', async () => {
+    const mockSend = vi.fn().mockResolvedValue({
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content: [
+              { type: 'text', text: 'First part. ' },
+              { type: 'text', text: 'Second part.' },
+            ],
+          },
+        },
+      ],
+    });
+
+    const mockClient = {
+      chat: {
+        send: mockSend,
+      },
+    } as any;
+
+    const service = new OpenRouterChatService({ client: mockClient });
+    const result = await service.generateResponse('Hello multipart');
+
+    expect(result).toEqual({
+      role: 'model',
+      content: 'First part. Second part.',
+    });
+  });
+
+  it('throws ExternalServiceError when response choices are empty or content is empty', async () => {
     const mockClient = {
       chat: {
         send: vi.fn().mockResolvedValue({
@@ -134,7 +164,7 @@ describe('OpenRouterChatService', () => {
     const service = new OpenRouterChatService({ client: mockClient });
 
     await expect(service.generateResponse('Hello')).rejects.toThrow(
-      'OpenRouter returned an empty response or content was filtered.'
+      'OpenRouter: Returned an empty response or content was filtered.'
     );
   });
 });

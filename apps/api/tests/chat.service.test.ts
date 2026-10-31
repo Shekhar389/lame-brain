@@ -27,10 +27,10 @@ describe('getDefaultLLMProvider', () => {
     expect(provider).toBeInstanceOf(GeminiChatService);
   });
 
-  it('returns OpenRouterChatService when OPENROUTER_API_KEY is present and GEMINI_API_KEY is unset', () => {
+  it('returns OpenRouterChatService when OPENROUTER_API_KEY is present', () => {
     (config as any).LLM_PROVIDER = undefined;
     (config as any).OPENROUTER_API_KEY = 'test-openrouter-key';
-    (config as any).GEMINI_API_KEY = undefined;
+    (config as any).GEMINI_API_KEY = 'test-gemini-key';
 
     const provider = getDefaultLLMProvider();
     expect(provider).toBeInstanceOf(OpenRouterChatService);

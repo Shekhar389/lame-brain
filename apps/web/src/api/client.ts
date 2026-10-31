@@ -6,7 +6,8 @@ export const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 1000000,
+  // 60-second timeout to accommodate remote LLM inference and reasoning latency
+  timeout: 60000,
 });
 
 // Response interceptor to unwrap the standardized API Envelope
