@@ -1,8 +1,25 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
+import { config } from '../src/core/config.js';
 
 describe('POST /api/v1/chat', () => {
+  const originalGeminiKey = config.GEMINI_API_KEY;
+  const originalOpenRouterKey = config.OPENROUTER_API_KEY;
+  const originalProvider = config.LLM_PROVIDER;
+
+  beforeEach(() => {
+    (config as any).GEMINI_API_KEY = undefined;
+    (config as any).OPENROUTER_API_KEY = undefined;
+    (config as any).LLM_PROVIDER = undefined;
+  });
+
+  afterAll(() => {
+    (config as any).GEMINI_API_KEY = originalGeminiKey;
+    (config as any).OPENROUTER_API_KEY = originalOpenRouterKey;
+    (config as any).LLM_PROVIDER = originalProvider;
+  });
+
   const app = createApp();
 
   it('returns status 200 with conforming ApiResponse<ChatResponseData> for valid prompt and history', async () => {
@@ -27,6 +44,27 @@ describe('POST /api/v1/chat', () => {
     });
     expect(typeof response.body.data.message.content).toBe('string');
     expect(response.body.data.message.content.length).toBeGreaterThan(0);
+  });
+
+  it('routes through OpenRouter provider when LLM_PROVIDER is openrouter', async () => {
+    (config as any).LLM_PROVIDER = 'openrouter';
+
+    const payload = {
+      message: 'Testing OpenRouter provider dispatch',
+    };
+
+    const response = await request(app).post('/api/v1/chat').send(payload);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      data: {
+        message: {
+          role: 'model',
+        },
+      },
+    });
+    expect(response.body.data.message.content).toContain('OPENROUTER_API_KEY');
   });
 
   it('fails with 400 when sending an empty or whitespace-only message', async () => {

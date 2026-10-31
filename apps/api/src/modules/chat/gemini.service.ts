@@ -21,7 +21,7 @@ export class GeminiChatService implements LLMProvider {
 
   constructor(options: GeminiChatServiceOptions = {}) {
     this.model = options.model ?? config.GEMINI_MODEL;
-    this.apiKey = options.apiKey ?? config.GEMINI_API_KEY;
+    this.apiKey = 'apiKey' in options ? options.apiKey : config.GEMINI_API_KEY;
     if (options.client) {
       this.client = options.client;
     }

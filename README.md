@@ -6,7 +6,7 @@ An anonymous, temporary ChatGPT-like conversational web application built as a m
 
 - **Stateless Modular Monolith**: Express backend persists zero chat turns or session data in memory or storage. Scalable, completely ephemeral, and privacy-conscious.
 - **Client-Held Chat History**: The Vue client maintains conversational turn history in ephemeral reactive memory, submitting prior turns alongside prompts for contextual conversations.
-- **LLM Provider Seam**: Clean decoupled domain abstraction (`LLMProvider`) implementing Google Gemini API (`@google/genai`) integration with contextual multi-turn conversation support.
+- **LLM Provider Seam**: Clean decoupled domain abstraction (`LLMProvider`) supporting Google Gemini API (`@google/genai`) and OpenRouter API (`@openrouter/sdk`) with contextual multi-turn conversation support and simulated local fallback.
 - **Perimeter Validation**: All incoming HTTP payloads are validated at the transport boundary with Zod schemas (`chatRequestSchema`) before reaching services.
 - **Shared Contracts (`@repo/shared`)**: Single source of truth for Zod validation schemas and TypeScript types shared across client and server.
 - **Transport Independence**: Domain services and providers are decoupled from HTTP primitives.
@@ -72,9 +72,17 @@ npm install
 
 ### Environment Configuration
 
-Configure your Gemini API key in `apps/api/.env`:
+Configure your LLM provider and credentials in `apps/api/.env`:
 
 ```bash
+# Provider selection: 'gemini' or 'openrouter' (defaults to 'gemini')
+LLM_PROVIDER=openrouter
+
+# OpenRouter Configuration (defaults to meta-llama/llama-3.3-70b-instruct:free)
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
+
+# Gemini Configuration
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-2.0-flash
 ```

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.32.0",
+    "@openrouter/sdk": "^1.5.33",
     "@repo/shared": "*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

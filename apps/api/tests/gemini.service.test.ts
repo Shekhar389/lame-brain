@@ -47,7 +47,10 @@ describe('GeminiChatService', () => {
       },
     } as any;
 
-    const service = new GeminiChatService({ client: mockClient });
+    const service = new GeminiChatService({
+      client: mockClient,
+      model: 'gemini-2.0-flash',
+    });
 
     const history = [
       { role: 'user' as const, content: 'What countries are in Europe?' },
@@ -97,7 +100,10 @@ describe('GeminiChatService', () => {
       },
     } as any;
 
-    const service = new GeminiChatService({ client: mockClient });
+    const service = new GeminiChatService({
+      client: mockClient,
+      model: 'gemini-2.0-flash',
+    });
 
     await expect(service.generateResponse('Hello')).rejects.toThrow('Gemini API quota exceeded');
   });
@@ -109,7 +115,10 @@ describe('GeminiChatService', () => {
       },
     } as any;
 
-    const service = new GeminiChatService({ client: mockClient });
+    const service = new GeminiChatService({
+      client: mockClient,
+      model: 'gemini-2.0-flash',
+    });
 
     await expect(service.generateResponse('Hello')).rejects.toThrow(
       'Gemini returned an empty response or content was filtered.'
