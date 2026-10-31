@@ -67,6 +67,40 @@ describe('POST /api/v1/chat', () => {
     expect(response.body.data.message.content).toContain('OPENROUTER_API_KEY');
   });
 
+  it('routes through OpenRouter when body specifies provider: "openrouter"', async () => {
+    (config as any).LLM_PROVIDER = 'gemini';
+
+    const response = await request(app).post('/api/v1/chat').send({
+      message: 'Hello via OpenRouter body parameter',
+      provider: 'openrouter',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.message.content).toContain('OPENROUTER_API_KEY');
+  });
+
+  it('routes through Gemini when body specifies provider: "gemini" even if LLM_PROVIDER is openrouter', async () => {
+    (config as any).LLM_PROVIDER = 'openrouter';
+
+    const response = await request(app).post('/api/v1/chat').send({
+      message: 'Hello via Gemini body parameter',
+      provider: 'gemini',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.message.content).toContain('GEMINI_API_KEY');
+  });
+
+  it('fails with 400 when sending an invalid provider name', async () => {
+    const response = await request(app).post('/api/v1/chat').send({
+      message: 'Hello',
+      provider: 'unsupported-provider',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
   it('fails with 400 when sending an empty or whitespace-only message', async () => {
     const emptyResponse = await request(app).post('/api/v1/chat').send({
       message: '   ',

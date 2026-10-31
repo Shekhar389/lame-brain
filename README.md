@@ -7,7 +7,7 @@ An anonymous, temporary ChatGPT-like conversational web application built as a m
 - **Stateless Modular Monolith**: Express backend persists zero chat turns or session data in memory or storage. Scalable, completely ephemeral, and privacy-conscious.
 - **Client-Held Chat History**: The Vue client maintains conversational turn history in ephemeral reactive memory, submitting prior turns alongside prompts for contextual conversations.
 - **LLM Provider Seam**: Clean decoupled domain abstraction (`LLMProvider`) supporting Google Gemini API (`@google/genai`) and OpenRouter API (`@openrouter/sdk`) with contextual multi-turn conversation support and simulated local fallback.
-- **Perimeter Validation**: All incoming HTTP payloads are validated at the transport boundary with Zod schemas (`chatRequestSchema`) before reaching services.
+- **Perimeter Validation**: All incoming HTTP payloads are validated at the transport boundary with Zod schemas (`chatRequestSchema`, supporting `message`, optional `history`, and optional per-request `provider: 'gemini' | 'openrouter'`) before reaching services.
 - **Shared Contracts (`@repo/shared`)**: Single source of truth for Zod validation schemas and TypeScript types shared across client and server.
 - **Transport Independence**: Domain services and providers are decoupled from HTTP primitives.
 - **Standardized API Envelope**: Uniform response structures (`{ success: true, data }` / `{ success: false, error }`) mounted under `/api/v1`.

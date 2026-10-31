@@ -64,4 +64,20 @@ describe('ChatService', () => {
       content: 'Response from provider',
     });
   });
+
+  it('dispatches to OpenRouter when provider parameter is openrouter even if server defaults to Gemini', async () => {
+    (config as any).LLM_PROVIDER = 'gemini';
+    const service = new ChatService();
+
+    const result = await service.processMessage('Hello OpenRouter', [], 'openrouter');
+    expect(result.content).toContain('OPENROUTER_API_KEY');
+  });
+
+  it('dispatches to Gemini when provider parameter is gemini even if server defaults to OpenRouter', async () => {
+    (config as any).LLM_PROVIDER = 'openrouter';
+    const service = new ChatService();
+
+    const result = await service.processMessage('Hello Gemini', [], 'gemini');
+    expect(result.content).toContain('GEMINI_API_KEY');
+  });
 });

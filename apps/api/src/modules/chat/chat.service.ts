@@ -1,4 +1,4 @@
-import type { ChatTurn } from '@repo/shared';
+import type { ChatTurn, LLMProviderName } from '@repo/shared';
 import { GeminiChatService } from './gemini.service.js';
 import { OpenRouterChatService } from './openrouter.service.js';
 import type { LLMProvider } from './llm-provider.interface.js';
@@ -23,8 +23,28 @@ export class ChatService {
     this.provider = provider;
   }
 
-  async processMessage(prompt: string, history: ChatTurn[] = []): Promise<ChatTurn> {
-    const provider = this.provider ?? getDefaultLLMProvider();
+  private resolveProvider(providerName?: LLMProviderName): LLMProvider {
+    if (this.provider) {
+      return this.provider;
+    }
+
+    if (providerName === 'openrouter') {
+      return new OpenRouterChatService();
+    }
+
+    if (providerName === 'gemini') {
+      return new GeminiChatService();
+    }
+
+    return getDefaultLLMProvider();
+  }
+
+  async processMessage(
+    prompt: string,
+    history: ChatTurn[] = [],
+    providerName?: LLMProviderName
+  ): Promise<ChatTurn> {
+    const provider = this.resolveProvider(providerName);
     const sanitizedPrompt = prompt.trim();
     return provider.generateResponse(sanitizedPrompt, history);
   }

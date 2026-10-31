@@ -7,8 +7,8 @@ export class ChatController {
 
   sendMessage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { message, history } = req.body as ChatRequest;
-      const modelTurn = await this.chatService.processMessage(message, history ?? []);
+      const { message, history, provider } = req.body as ChatRequest;
+      const modelTurn = await this.chatService.processMessage(message, history ?? [], provider);
 
       const response: ApiResponse<ChatResponseData> = {
         success: true,

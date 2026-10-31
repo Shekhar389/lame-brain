@@ -9,6 +9,9 @@ export const ChatTurnSchema = z.object({
 });
 export type ChatTurn = z.infer<typeof ChatTurnSchema>;
 
+export const LLMProviderNameSchema = z.enum(['gemini', 'openrouter']);
+export type LLMProviderName = z.infer<typeof LLMProviderNameSchema>;
+
 export const ChatRequestSchema = z.object({
   message: z
     .string()
@@ -16,6 +19,7 @@ export const ChatRequestSchema = z.object({
     .min(1, 'Message cannot be empty')
     .max(4000, 'Message cannot exceed 4000 characters'),
   history: z.array(ChatTurnSchema).optional(),
+  provider: LLMProviderNameSchema.optional(),
 });
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 
@@ -27,5 +31,6 @@ export type ChatResponseData = z.infer<typeof ChatResponseDataSchema>;
 // Canonical aliases conforming to camelCase naming conventions
 export const chatRoleSchema = ChatRoleSchema;
 export const chatTurnSchema = ChatTurnSchema;
+export const llmProviderNameSchema = LLMProviderNameSchema;
 export const chatRequestSchema = ChatRequestSchema;
 export const chatResponseDataSchema = ChatResponseDataSchema;
