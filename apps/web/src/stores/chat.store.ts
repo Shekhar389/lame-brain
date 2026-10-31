@@ -25,7 +25,6 @@ export const useChatStore = defineStore('chat', () => {
       });
       messages.value.push(response.message);
     } catch (err: any) {
-      messages.value.pop();
       error.value = err?.message || 'Failed to generate response. Please try again.';
       throw err;
     } finally {

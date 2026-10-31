@@ -6,16 +6,7 @@
         <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
         <span class="text-xs font-medium text-gray-600">Ephemeral Session</span>
       </div>
-      <button
-        type="button"
-        class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors border border-gray-200"
-        @click="chatStore.clearChat"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-        </svg>
-        <span>New Chat</span>
-      </button>
+      <NewChatButton />
     </div>
 
     <!-- Message Container / Feed -->
@@ -105,11 +96,12 @@
         <textarea
           ref="textareaRef"
           v-model="inputPrompt"
-          rows="1"
+          rows="3"
           placeholder="Type your message... (Enter to send, Shift+Enter for newline)"
           :disabled="chatStore.loading"
-          class="w-full resize-none rounded-xl border border-gray-300 pr-12 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400"
+          class="w-full resize-none rounded-xl border border-gray-300 pr-12 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 max-h-48"
           @keydown="handleKeyDown"
+          @input="adjustTextareaHeight"
         ></textarea>
         <button
           type="submit"
@@ -134,6 +126,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue';
 import { useChatStore } from '../stores/chat.store.js';
+import NewChatButton from '../components/NewChatButton.vue';
 
 const chatStore = useChatStore();
 const inputPrompt = ref('');
@@ -147,9 +140,25 @@ const suggestions = [
   'What are the core design patterns of modular monoliths?',
 ];
 
+function adjustTextareaHeight() {
+  if (textareaRef.value) {
+    textareaRef.value.style.height = 'auto';
+    textareaRef.value.style.height = `${Math.min(textareaRef.value.scrollHeight, 192)}px`;
+  }
+}
+
+function resetTextareaHeight() {
+  if (textareaRef.value) {
+    textareaRef.value.style.height = 'auto';
+  }
+}
+
 function useSuggestion(text: string) {
   inputPrompt.value = text;
-  textareaRef.value?.focus();
+  nextTick(() => {
+    adjustTextareaHeight();
+    textareaRef.value?.focus();
+  });
 }
 
 async function scrollToBottom() {
@@ -179,15 +188,18 @@ async function handleSubmit() {
   if (!text || chatStore.loading) return;
 
   const previousInput = inputPrompt.value;
+  inputPrompt.value = '';
+  resetTextareaHeight();
+
   try {
-    const promise = chatStore.sendPrompt(text);
-    // User story: prompt is kept until confirmed, or if error happens retained
-    await promise;
-    inputPrompt.value = '';
+    await chatStore.sendPrompt(text);
     scrollToBottom();
   } catch {
-    // Keep typed buffer on error
+    // Retain user's typed input buffer on error so it can be resent
     inputPrompt.value = previousInput;
+    nextTick(() => {
+      adjustTextareaHeight();
+    });
   }
 }
 </script>

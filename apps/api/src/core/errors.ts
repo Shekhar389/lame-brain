@@ -31,21 +31,3 @@ export class ValidationError extends AppError {
     super(message, details);
   }
 }
-
-export class ConflictError extends AppError {
-  readonly code = 'CONFLICT';
-  readonly statusCode = 409;
-
-  constructor(message: string) {
-    super(message);
-  }
-}
-
-export class InternalServerError extends AppError {
-  readonly code = 'INTERNAL_SERVER_ERROR';
-  readonly statusCode = 500;
-
-  constructor(message = 'An unexpected internal error occurred.') {
-    super(message);
-  }
-}

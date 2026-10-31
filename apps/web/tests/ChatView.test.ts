@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import ChatView from '../src/views/ChatView.vue';
-import * as chatApi from '../src/api/chat.api.js';
+import { apiClient } from '../src/api/client.js';
 
 describe('ChatView Component', () => {
   beforeEach(() => {
@@ -25,12 +25,12 @@ describe('ChatView Component', () => {
   });
 
   it('submits a prompt, displays user turn, disables inputs during loading, and displays assistant turn upon completion', async () => {
-    let resolveApi!: (val: { message: { role: 'model'; content: string } }) => void;
-    const apiPromise = new Promise<{ message: { role: 'model'; content: string } }>((resolve) => {
+    let resolveApi!: (val: { data: { success: true; data: { message: { role: 'model'; content: string } } } }) => void;
+    const apiPromise = new Promise<{ data: { success: true; data: { message: { role: 'model'; content: string } } } }>((resolve) => {
       resolveApi = resolve;
     });
 
-    vi.spyOn(chatApi, 'sendChatMessage').mockReturnValue(apiPromise);
+    vi.spyOn(apiClient, 'post').mockReturnValue(apiPromise as any);
 
     const wrapper = mount(ChatView, {
       global: {
@@ -44,18 +44,23 @@ describe('ChatView Component', () => {
     await textarea.setValue('Hello AI');
     await wrapper.find('form').trigger('submit');
 
-    // 1. Immediately user turn is visible
+    // 1. Immediately user turn is visible in the feed
     expect(wrapper.text()).toContain('Hello AI');
 
     // 2. Inputs are disabled while loading
     expect((textarea.element as HTMLTextAreaElement).disabled).toBe(true);
     expect((sendButton.element as HTMLButtonElement).disabled).toBe(true);
 
-    // 3. Resolve API
+    // 3. Resolve API at the network boundary
     resolveApi({
-      message: {
-        role: 'model',
-        content: 'Assistant response text',
+      data: {
+        success: true,
+        data: {
+          message: {
+            role: 'model',
+            content: 'Assistant response text',
+          },
+        },
       },
     });
 
@@ -71,10 +76,15 @@ describe('ChatView Component', () => {
   });
 
   it('resets the visible conversation to the empty state when clicking "New Chat"', async () => {
-    vi.spyOn(chatApi, 'sendChatMessage').mockResolvedValue({
-      message: {
-        role: 'model',
-        content: 'Assistant reply',
+    vi.spyOn(apiClient, 'post').mockResolvedValue({
+      data: {
+        success: true,
+        data: {
+          message: {
+            role: 'model',
+            content: 'Assistant reply',
+          },
+        },
       },
     });
 
@@ -101,7 +111,7 @@ describe('ChatView Component', () => {
   });
 
   it('displays the error banner without wiping user input buffer when API fails', async () => {
-    vi.spyOn(chatApi, 'sendChatMessage').mockRejectedValue(
+    vi.spyOn(apiClient, 'post').mockRejectedValue(
       new Error('Network connection error')
     );
 

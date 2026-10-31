@@ -23,3 +23,9 @@ export const ChatResponseDataSchema = z.object({
   message: ChatTurnSchema,
 });
 export type ChatResponseData = z.infer<typeof ChatResponseDataSchema>;
+
+// Canonical aliases conforming to camelCase naming conventions
+export const chatRoleSchema = ChatRoleSchema;
+export const chatTurnSchema = ChatTurnSchema;
+export const chatRequestSchema = ChatRequestSchema;
+export const chatResponseDataSchema = ChatResponseDataSchema;
