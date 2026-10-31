@@ -16,24 +16,26 @@ export function getDefaultLLMProvider(): LLMProvider {
   return new GeminiChatService();
 }
 
-export class ChatService {
-  private readonly provider?: LLMProvider;
+const providerFactories: Record<LLMProviderName, () => LLMProvider> = {
+  openrouter: () => new OpenRouterChatService(),
+  gemini: () => new GeminiChatService(),
+};
 
-  constructor(provider?: LLMProvider) {
-    this.provider = provider;
-  }
+export class ChatService {
+  private readonly cachedProviders: Partial<Record<LLMProviderName, LLMProvider>> = {};
+
+  constructor(private readonly providerOverride?: LLMProvider) {}
 
   private resolveProvider(providerName?: LLMProviderName): LLMProvider {
-    if (this.provider) {
-      return this.provider;
+    if (providerName && providerFactories[providerName]) {
+      if (!this.cachedProviders[providerName]) {
+        this.cachedProviders[providerName] = providerFactories[providerName]();
+      }
+      return this.cachedProviders[providerName]!;
     }
 
-    if (providerName === 'openrouter') {
-      return new OpenRouterChatService();
-    }
-
-    if (providerName === 'gemini') {
-      return new GeminiChatService();
+    if (this.providerOverride) {
+      return this.providerOverride;
     }
 
     return getDefaultLLMProvider();
