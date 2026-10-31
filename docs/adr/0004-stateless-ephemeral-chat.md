@@ -1,0 +1,3 @@
+# Stateless Ephemeral Chat with Client-Side History
+
+We decided to keep the backend completely stateless with zero session persistence or database storage for chat interactions. The frontend client holds the active conversation turn history in ephemeral memory and submits the relevant context with each prompt request. An LLM provider seam abstracts generation (starting as a local boilerplate stub) so the service layer remains decoupled from external vendor SDKs. This ensures zero data retention for anonymous users, eliminates session leak risks on the server, and allows simple horizontal scaling.
