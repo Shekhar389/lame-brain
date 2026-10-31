@@ -6,7 +6,7 @@ An anonymous, temporary ChatGPT-like conversational web application built as a m
 
 - **Stateless Modular Monolith**: Express backend persists zero chat turns or session data in memory or storage. Scalable, completely ephemeral, and privacy-conscious.
 - **Client-Held Chat History**: The Vue client maintains conversational turn history in ephemeral reactive memory, submitting prior turns alongside prompts for contextual conversations.
-- **LLM Provider Seam**: Clean decoupled domain abstraction (`LLMProvider`) implementing a simulated boilerplate response, structurally ready for Google Gemini API (`@google/genai`) integration.
+- **LLM Provider Seam**: Clean decoupled domain abstraction (`LLMProvider`) implementing Google Gemini API (`@google/genai`) integration with contextual multi-turn conversation support.
 - **Perimeter Validation**: All incoming HTTP payloads are validated at the transport boundary with Zod schemas (`chatRequestSchema`) before reaching services.
 - **Shared Contracts (`@repo/shared`)**: Single source of truth for Zod validation schemas and TypeScript types shared across client and server.
 - **Transport Independence**: Domain services and providers are decoupled from HTTP primitives.
@@ -68,6 +68,15 @@ An anonymous, temporary ChatGPT-like conversational web application built as a m
 
 ```bash
 npm install
+```
+
+### Environment Configuration
+
+Configure your Gemini API key in `apps/api/.env`:
+
+```bash
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 ### Development

@@ -1,5 +1,20 @@
-import { describe, it, expect } from 'vitest';
+process.env.GEMINI_API_KEY = 'test-gemini-key';
+
+import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
+
+vi.mock('@google/genai', () => {
+  return {
+    GoogleGenAI: class {
+      models = {
+        generateContent: vi.fn().mockResolvedValue({
+          text: 'Mock response from Gemini',
+        }),
+      };
+    },
+  };
+});
+
 import { createApp } from '../src/app.js';
 
 describe('POST /api/v1/chat', () => {
